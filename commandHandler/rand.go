@@ -27,17 +27,28 @@ func init() {
 }
 
 type randGame struct {
-	games []string
+	games map[string][]string
+	companies []string
 }
 
 func newRandGame() *randGame {
-	return &randGame{
-		games: []string{"空战之路", "首领蜂", "怒首领蜂", "长空超少年", "狱门山物语", "弹铳", "能源之岚", "怒首领蜂大往生", "怒首领蜂大往生（黑）",
-			"决意~绊地狱", "长空超翼神", "铸蔷薇", "虫姬", "虫姬2", "长空超翼神2", "骑猪少女", "死亡微笑", "虫姬2（黑）", "粉红甜心~铸蔷薇后传",
-			"怒首领蜂大复活", "死亡微笑（黑）", "怒首领蜂大复活（黑）", "死亡微笑2", "死亡微笑2X", "赤刀真", "怒首领蜂最大往生",
-			"东方红魔乡", "东方妖妖梦", "东方永夜抄", "东方风神录", "东方地灵殿", "东方星莲船",
-			"东方神灵庙", "东方辉针城", "东方绀珠传", "东方天空璋", "东方鬼形兽", "东方虹龙洞"},
+	r := &randGame{
+		games: map[string][]string{
+			"东方": {"东方红魔乡", "东方妖妖梦", "东方永夜抄", "东方风神录", "东方地灵殿", "东方星莲船",
+				"东方神灵庙", "东方辉针城", "东方绀珠传", "东方天空璋", "东方鬼形兽", "东方虹龙洞"},
+			"cave": {"首领蜂", "怒首领蜂", "长空超少年", "狱门山物语", "弹铳", "能源之岚", "怒首领蜂大往生", "怒首领蜂大往生（黑）",
+					"决意~绊地狱", "长空超翼神", "铸蔷薇", "虫姬", "虫姬2", "长空超翼神2", "骑猪少女", "死亡微笑", "虫姬2（黑）",
+					"粉红甜心~铸蔷薇后传", "怒首领蜂大复活", "死亡微笑（黑）", "怒首领蜂大复活（黑）", "死亡微笑2", "死亡微笑2X",
+					"赤刀真", "怒首领蜂最大往生"},
+			"raizing" : {"空战之路"},
+		},
+		companies: []string{},
 	}
+
+	for k:= range r.games {
+		r.companies = append(r.companies, k)
+	}
+	return r
 }
 
 func (r *randGame) Name() string {
@@ -52,9 +63,18 @@ func (r *randGame) CheckAuth(int64, int64) bool {
 	return true
 }
 
-func (r *randGame) Execute(*message.GroupMessage, string) (groupMsg *message.SendingMessage, privateMsg *message.SendingMessage) {
-	n := rand.Intn(len(r.games))
-	groupMsg = message.NewSendingMessage().Append(message.NewText(r.games[n]))
+func (r *randGame) Execute(_ *message.GroupMessage, company string) (groupMsg *message.SendingMessage, privateMsg *message.SendingMessage) {
+	if len(company) == 0 {
+		n := rand.Intn(len(r.companies))
+		company = r.companies[n]
+	}
+	company = strings.ToLower(company)
+
+	if companyGames, ok := r.games[company]; ok {
+		ret := companyGames[rand.Intn(len(companyGames))]
+		groupMsg = message.NewSendingMessage().Append(message.NewText(ret))
+	}
+
 	return
 }
 
