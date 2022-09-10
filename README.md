@@ -1,6 +1,6 @@
 <div align="center">
 
-# 东方Project沙包聚集地机器人
+# 飞行机轮通天门总舵机器人
 
 ![](https://img.shields.io/github/languages/top/Touhou-Freshman-Camp/tfcc-bot-go "语言")
 [![](https://img.shields.io/github/workflow/status/Touhou-Freshman-Camp/tfcc-bot-go/Go)](https://github.com/Touhou-Freshman-Camp/tfcc-bot-go/actions/workflows/golangci-lint.yml "代码分析")
@@ -8,14 +8,14 @@
 [![](https://img.shields.io/github/license/Touhou-Freshman-Camp/tfcc-bot-go)](https://github.com/Touhou-Freshman-Camp/tfcc-bot-go/blob/master/LICENSE "许可协议")
 </div>
 
-这是东方Project沙包聚集地（以下简称“红群”）的机器人，基于[MiraiGo-Template](https://github.com/Logiase/MiraiGo-Template)编写。
+这是飞行机轮通天门总舵（以下简称“羊群”）的机器人，基于[MiraiGo-Template](https://github.com/Logiase/MiraiGo-Template)编写。
 
 ## 声明
 
 * 本项目采用`AGPLv3`协议开源。同时**强烈建议**各位开发者遵循以下原则：
   * **任何间接接触本项目的软件也要求使用`AGPLv3`协议开源**
   * **不鼓励，不支持一切商业用途**
-* **由于使用本项目提供的接口、文档等造成的不良影响和后果与本人和红群无关**
+* **由于使用本项目提供的接口、文档等造成的不良影响和后果与本人和羊群无关**
 * 由于本项目的特殊性，可能随时停止开发或删档
 * 本项目为开源项目，不接受任何的催单和索取行为
 
