@@ -17,6 +17,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 )
 
 func init() {
@@ -31,7 +32,11 @@ type randGame struct {
 
 func newRandGame() *randGame {
 	return &randGame{
-		games: []string{"东方红魔乡", "东方妖妖梦", "东方永夜抄", "东方风神录", "东方地灵殿", "东方星莲船", "东方神灵庙", "东方辉针城", "东方绀珠传", "东方天空璋", "东方鬼形兽", "东方虹龙洞"},
+		games: []string{"空战之路", "首领蜂", "怒首领蜂", "长空超少年", "狱门山物语", "弹铳", "能源之岚", "怒首领蜂大往生", "怒首领蜂大往生（黑）",
+			"决意~绊地狱", "长空超翼神", "铸蔷薇", "虫姬", "虫姬2", "长空超翼神2", "骑猪少女", "死亡微笑", "虫姬2（黑）", "粉红甜心~铸蔷薇后传",
+			"怒首领蜂大复活", "死亡微笑（黑）", "怒首领蜂大复活（黑）", "死亡微笑2", "死亡微笑2X", "赤刀真", "怒首领蜂最大往生",
+			"东方红魔乡", "东方妖妖梦", "东方永夜抄", "东方风神录", "东方地灵殿", "东方星莲船",
+			"东方神灵庙", "东方辉针城", "东方绀珠传", "东方天空璋", "东方鬼形兽", "东方虹龙洞"},
 	}
 }
 
@@ -60,6 +65,33 @@ type randCharacter struct {
 func newRandCharacter() *randCharacter {
 	r := &randCharacter{
 		gameMap: map[string][][]string{
+			"空战之路":       {{"Silver Sword", "Grass Hopper", "Flying Baron", "Wild Snail", "Gain", "Chitta", "Miyamoto", "Bornnam"}},
+			"首领蜂":        {{"A机", "B机", "C机"}},
+			"怒首领蜂":       {{"A机", "B机", "C机"}, {"S强化", "L强化"}},
+			"长空超少年":      {{"相模裕介", "J.B.5th", "美作彩凛", "小野亚莉水"}},
+			"狱门山物语":      {{"柊小雨", "贺茂源助", "鬼王"}},
+			"弹铳":         {{"A-Lock", "A-Bomb", "A-Wave", "B-Lock", "B-Bomb", "B-Wave", "C-Lock", "C-Bomb", "C-Wave", "鱼太郎"}},
+			"能源之岚":       {{"Ring", "Bolt"}, {"&Chain", "&Nail", "&Rivet"}},
+			"怒首领蜂大往生":    {{"A机", "B机"}, {"S强化", "L强化", "EX强化"}},
+			"怒首领蜂大往生（黑）": {{"A机", "B机"}, {"S强化", "L强化", "EX强化"}},
+			"决意~绊地狱":     {{"A机", "B机"}},
+			"长空超翼神":      {{"扬羽", "盾羽"}},
+			"铸蔷薇":        {{"Bond", "Dyne"}},
+			"虫姬":         {{"W机", "M机", "S机"}},
+			"虫姬2":        {{"Reco", "Palm"}, {"Abnormal", "Normal"}},
+			"长空超翼神2":     {{"扬羽", "盾羽", "浅木", "塞瑟莉"}},
+			"骑猪少女":       {{"Momo", "Rafute", "Ikuo"}},
+			"死亡微笑":       {{"温迪雅", "佛莱特", "卡丝帕", "萝莎"}},
+			"虫姬2（黑）":     {{"Reco", "Palm"}, {"Abnormal", "Normal"}},
+			"粉红甜心~铸蔷薇后传": {{"Meidi&Midi", "Kasumi", "Shasta", "Lace"}},
+			"怒首领蜂大复活":    {{"A机", "B机", "C机"}, {"S模式", "B模式", "P模式"}},
+			"复活":         {{"A机", "B机", "C机"}, {"S模式", "B模式", "P模式"}},
+			"死亡微笑（黑）":    {{"温迪雅", "佛莱特", "卡丝帕", "萝莎", "莎裘拉"}},
+			"怒首领蜂大复活（黑）": {{"A机", "B机", "C机"}, {"S模式", "B模式", "P模式"}},
+			"死亡微笑2":      {{"温迪雅", "卡丝帕", "丝皮", "蕾"}},
+			"死亡微笑2X":     {{"温迪雅", "佛莱特", "卡丝帕", "萝莎", "丝皮", "蕾"}},
+			"赤刀真":        {{"桔梗&牡丹", "椿&堇", "紫苑&铃兰"}},
+			"怒首领蜂最大往生":   {{"朱理", "光", "真璃亚", "樱夜"}, {"战斗服", "常服", "泳装"}},
 			"东方红魔乡": {{"灵梦", "魔理沙"}, {"A", "B"}},
 			"东方妖妖梦": {{"灵梦", "魔理沙", "咲夜"}, {"A", "B"}},
 			"东方永夜抄": {{"结界组", "咏唱组", "红魔组", "幽冥组", "灵梦", "紫", "魔理沙", "爱丽丝", "咲夜", "蕾米莉亚", "妖梦", "幽幽子"}},
@@ -78,11 +110,48 @@ func newRandCharacter() *randCharacter {
 	for k := range r.gameMap {
 		games = append(games, k)
 	}
+	// 给东方正作加缩写，逻辑是第三个字，第五个字和后三个字，如东方红魔乡对应红，乡和红魔乡
 	for _, k := range games {
-		r.gameMap[strutil.MustSubstring(k, 2, 3)] = r.gameMap[k]
-		r.gameMap[strutil.MustSubstring(k, 4, 5)] = r.gameMap[k]
-		r.gameMap[strutil.MustSubstring(k, 2, 5)] = r.gameMap[k]
+		if utf8.RuneCountInString(k) == 5 && strings.HasPrefix(k, "东方") {
+			r.gameMap[strutil.MustSubstring(k, 2, 3)] = r.gameMap[k]
+			r.gameMap[strutil.MustSubstring(k, 4, 5)] = r.gameMap[k]
+			r.gameMap[strutil.MustSubstring(k, 2, 5)] = r.gameMap[k]
+		}
 	}
+	// 下面的代码可以人工给作品添加别名
+	r.gameMap["妹往生"] = r.gameMap["怒首领蜂最大往生"]
+	r.gameMap["最大往生"] = r.gameMap["怒首领蜂最大往生"]
+	r.gameMap["初代蜂"] = r.gameMap["怒首领蜂"]
+	r.gameMap["糟少年"] = r.gameMap["长空超少年"]
+	r.gameMap["超少年"] = r.gameMap["长空超少年"]
+	r.gameMap["狱门山"] = r.gameMap["狱门山物语"]
+	r.gameMap["能源"] = r.gameMap["能源之岚"]
+	r.gameMap["大往生"] = r.gameMap["怒首领蜂大往生"]
+	r.gameMap["白往生"] = r.gameMap["怒首领蜂大往生"]
+	r.gameMap["黑往生"] = r.gameMap["怒首领蜂大往生（黑）"]
+	r.gameMap["绊地狱"] = r.gameMap["决意~绊地狱"]
+	r.gameMap["地狱"] = r.gameMap["决意~绊地狱"]
+	r.gameMap["圣战之翼"] = r.gameMap["长空超翼神"]
+	r.gameMap["g1"] = r.gameMap["长空超翼神"]
+	r.gameMap["G1"] = r.gameMap["长空超翼神"]
+	r.gameMap["虫"] = r.gameMap["虫姬"]
+	r.gameMap["虫2"] = r.gameMap["虫姬2"]
+	r.gameMap["黑虫"] = r.gameMap["虫姬2（黑）"]
+	r.gameMap["圣战之翼2"] = r.gameMap["长空超翼神2"]
+	r.gameMap["G2"] = r.gameMap["长空超翼神2"]
+	r.gameMap["骑猪少女"] = r.gameMap["骑猪"]
+	r.gameMap["白死笑"] = r.gameMap["死亡微笑"]
+	r.gameMap["死笑"] = r.gameMap["死亡微笑"]
+	r.gameMap["粉蔷薇"] = r.gameMap["粉红甜心~铸蔷薇后传"]
+	r.gameMap["复活"] = r.gameMap["怒首领蜂大复活"]
+	r.gameMap["白复活"] = r.gameMap["怒首领蜂大复活"]
+	r.gameMap["大复活"] = r.gameMap["怒首领蜂大复活"]
+	r.gameMap["黑死笑"] = r.gameMap["死亡微笑（黑）"]
+	r.gameMap["黑复活"] = r.gameMap["怒首领蜂大复活（黑）"]
+	r.gameMap["死笑2"] = r.gameMap["死亡微笑2"]
+	r.gameMap["死笑2X"] = r.gameMap["死亡微笑2X"]
+
+
 	return r
 }
 
